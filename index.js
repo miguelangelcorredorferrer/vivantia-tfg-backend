@@ -29,7 +29,9 @@ conectarDB()
 const whiteList = [
     process.env.FRONTEND_URL,
     'http://localhost:3000',
-    'http://127.0.0.1:3000'
+    'http://127.0.0.1:3000',
+    'https://vivantia-tfg-frontend.vercel.app',
+    'https://vivantia-tfg-frontend.vercel.app/'
 ]
 
 const corsOptions = {
@@ -42,10 +44,14 @@ const corsOptions = {
             return callback(null, true);
         }
         
+        // Verificar si el origin está en la whitelist
         if(whiteList.includes(origin)) {
             //Permite la conexión
             callback(null, true)
         } else {
+            // Log para debugging
+            console.log('CORS blocked origin:', origin);
+            console.log('Allowed origins:', whiteList);
             //No permite la conexión
             callback(new Error("Error de CORS"))
         }
