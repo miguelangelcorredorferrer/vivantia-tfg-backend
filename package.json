@@ -1,0 +1,35 @@
+{
+  "name": "vivantia_backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js",
+    "start": "node index.js",
+    "dev:postman": "node --watch index.js --postman"
+  },
+  "keywords": [],
+  "author": "Miguel Ángel Corredor Ferrer",
+  "license": "ISC",
+  "description": "Backend para Vivantia IoT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.56.1",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
+    "colors": "^1.4.0",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.5",
+    "pg": "^8.16.3",
+    "pg-pool": "^3.10.1",
+    "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "sequelize-cli": "^6.6.3"
+  }
+}
