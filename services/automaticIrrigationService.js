@@ -244,61 +244,44 @@ const evaluateAutomaticIrrigation = async (deviceId, sensorData) => {
 };
 
 /**
- * Evalúa si debe activarse el riego basado en condiciones de sensores
+ * Evalúa si debe activarse el riego basado SOLO en humedad del suelo
  */
 const evaluateActivationConditions = (sensorData, config) => {
-  const { temperature, soil_humidity, air_humidity } = sensorData;
+  const { soil_humidity } = sensorData;
   
-  // Condiciones para activar riego:
-  // 1. Temperatura supera el máximo
-  const temperatureHigh = temperature > config.temperature_max;
-  
-  // 2. Humedad del suelo está por debajo o igual al mínimo (CRUCIAL para activar cuando suelo = 0 y min = 0)
+  // ÚNICA CONDICIÓN para activar riego: humedad del suelo inferior al mínimo
   const soilHumidityLow = soil_humidity <= config.soil_humidity_min;
   
-  // 3. Humedad del aire está por debajo del mínimo (condición adicional)
-  const airHumidityLow = air_humidity < config.air_humidity_min;
-  
-  console.log('🔍 [AUTO] Condiciones de activación:', {
-    temperatureHigh: `${temperature}°C > ${config.temperature_max}°C = ${temperatureHigh}`,
-    soilHumidityLow: `${soil_humidity}% <= ${config.soil_humidity_min}% = ${soilHumidityLow}`,
-    airHumidityLow: `${air_humidity}% < ${config.air_humidity_min}% = ${airHumidityLow}`
+  console.log('🔍 [AUTO] Condición de activación:', {
+    soilHumidityLow: `${soil_humidity}% <= ${config.soil_humidity_min}% = ${soilHumidityLow}`
   });
   
-  // ✅ ACTIVAR si CUALQUIERA de estas condiciones se cumple (OR logic):
-  // - Temperatura es muy alta
-  // - Humedad del suelo es muy baja  
-  // - Humedad del aire es muy baja
-  const result = temperatureHigh || soilHumidityLow || airHumidityLow;
-  console.log(`🔍 [AUTO] Resultado activación: ${temperatureHigh} || ${soilHumidityLow} || ${airHumidityLow} = ${result}`);
-  return result;
+  // ✅ ACTIVAR SOLO si la humedad del suelo es baja
+  console.log(`🔍 [AUTO] Resultado activación: ${soilHumidityLow}`);
+  return soilHumidityLow;
 };
 
 /**
- * Evalúa si debe desactivarse el riego basado en condiciones de sensores
+ * Evalúa si debe desactivarse el riego basado SOLO en humedad del suelo
  */
 const evaluateDeactivationConditions = (sensorData, config) => {
-  const { temperature, soil_humidity, air_humidity } = sensorData;
+  const { soil_humidity } = sensorData;
   
-  // Condiciones para desactivar riego (misma lógica que frontend):
-  // 1. Temperatura OK (no supera el máximo)
-  const temperatureOk = temperature <= config.temperature_max;
+  // Condiciones para desactivar riego (SOLO humedad del suelo):
+  // 1. Humedad del suelo en rango óptimo
+  const soilHumidityInRange = soil_humidity >= config.soil_humidity_min && 
+                             soil_humidity <= config.soil_humidity_max;
   
-  // 2. Humedad del suelo en rango óptimo
-  const soilHumidityOk = soil_humidity >= config.soil_humidity_min && 
-                         soil_humidity <= config.soil_humidity_max;
-  
-  // 3. Humedad del aire OK (supera el mínimo)
-  const airHumidityOk = air_humidity >= config.air_humidity_min;
+  // 2. Humedad del suelo demasiado alta
+  const soilHumidityTooHigh = soil_humidity > config.soil_humidity_max;
   
   console.log('🔍 [AUTO] Condiciones de desactivación:', {
-    temperatureOk: `${temperature}°C <= ${config.temperature_max}°C = ${temperatureOk}`,
-    soilHumidityOk: `${soil_humidity}% (${config.soil_humidity_min}%-${config.soil_humidity_max}%) = ${soilHumidityOk}`,
-    airHumidityOk: `${air_humidity}% >= ${config.air_humidity_min}% = ${airHumidityOk}`
+    soilHumidityInRange: `${soil_humidity}% (${config.soil_humidity_min}%-${config.soil_humidity_max}%) = ${soilHumidityInRange}`,
+    soilHumidityTooHigh: `${soil_humidity}% > ${config.soil_humidity_max}% = ${soilHumidityTooHigh}`
   });
   
-  // Desactivar cuando TODAS las condiciones están OK (igual que frontend)
-  const shouldDeactivate = temperatureOk && soilHumidityOk && airHumidityOk;
+  // Desactivar cuando la humedad está en rango óptimo O cuando está demasiado alta
+  const shouldDeactivate = soilHumidityInRange || soilHumidityTooHigh;
   console.log(`🎯 [AUTO] shouldDeactivate = ${shouldDeactivate}`);
   
   return shouldDeactivate;
