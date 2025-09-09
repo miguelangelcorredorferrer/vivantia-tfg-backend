@@ -136,9 +136,7 @@ const evaluateAutomaticIrrigation = async (deviceId, sensorData) => {
       
       // Crear alertas específicas según la condición que se cumplió
       const { temperature, soil_humidity, air_humidity } = sensorData;
-      const temperatureHigh = temperature > config.temperature_max;
       const soilHumidityLow = soil_humidity <= config.soil_humidity_min;
-      const airHumidityLow = air_humidity < config.air_humidity_min;
       
       // Crear alerta general de riego iniciado
       await createIrrigationStartedAlert(
@@ -148,22 +146,9 @@ const evaluateAutomaticIrrigation = async (deviceId, sensorData) => {
         `Temp: ${temperature}°C, Hum.Suelo: ${soil_humidity}%, Hum.Aire: ${air_humidity}%`
       );
       
-      // Crear alertas específicas por cada umbral que se cumplió
-      if (temperatureHigh) {
-        await createAutomaticActivatedTemperatureAlert(
-          config.user_id, config.crop_name, temperature, config.temperature_max
-        );
-      }
-      
       if (soilHumidityLow) {
         await createAutomaticActivatedSoilHumidityAlert(
           config.user_id, config.crop_name, soil_humidity, config.soil_humidity_min
-        );
-      }
-      
-      if (airHumidityLow) {
-        await createAutomaticActivatedAirHumidityAlert(
-          config.user_id, config.crop_name, air_humidity, config.air_humidity_min
         );
       }
       
